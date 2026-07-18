@@ -1,0 +1,86 @@
+# vonvillas.com GitHub Notes
+
+Reference notes for working with the vonvillas.com website repo, so we stop
+re-discovering the same things.
+
+## Two separate repos — don't mix them up
+
+- **`edzhurai/vonvillas.com`** — the actual public website (GitHub Pages).
+  Plain static HTML files. This is what serves `https://vonvillas.com`.
+  Custom domain configured via a `CNAME` file in the repo root containing
+  `vonvillas.com`.
+- **`vvproj`** (local: `~/Dropbox/AI/vvproj`) — the Next.js/Supabase studio
+  management app, deployed on **Vercel**, not GitHub Pages. Completely
+  separate deployment. Claude Code has local access to this one; it does
+  **not** have access to the `vonvillas.com` repo.
+
+If a task is "add/change a page on the public website," it belongs in the
+`vonvillas.com` repo, done through GitHub's web UI (see below) — not
+through Claude Code, not through `vvproj`.
+
+## Adding a file (upload)
+
+No local checkout needed — just use the web UI:
+
+1. Go to `github.com/edzhurai/vonvillas.com`
+2. Click the **"+"** dropdown near the top right → **"Upload files"**
+3. Drag the file in
+4. Scroll down, commit directly to `main`
+
+Live at `https://vonvillas.com/<filename>` within a minute or two
+(GitHub Pages rebuilds automatically).
+
+## Deleting a file
+
+The trash-can icon in the file view is unreliable — it's been missing or
+greyed out more than once. The **reliable method** is a direct URL:
+
+```
+https://github.com/<owner>/<repo>/delete/<branch>/<path-to-file>
+```
+
+Example for this repo:
+```
+https://github.com/edzhurai/vonvillas.com/delete/main/sms.html
+```
+
+This goes straight to a delete confirmation screen with a commit box —
+skips all the menu-hunting. Double-check the exact repo name and branch
+from the address bar first if unsure (repo name turned out to be
+`vonvillas.com`, not `edzhurai.github.io`, which caused a 404 once).
+
+## DNS / HTTPS (Namecheap → GitHub Pages)
+
+Already set up and confirmed working (as of July 2026):
+
+- Four `A` records on `@` pointing to GitHub Pages' IPs:
+  `185.199.108.153`, `.109.153`, `.110.153`, `.111.153`
+- `CNAME` record on `www` → `edzhurai.github.io.`
+- No CAA record needed (none present, and that's fine — absence doesn't
+  block Let's Encrypt)
+- If "Enforce HTTPS" / custom domain looks stuck on GitHub's Settings →
+  Pages screen, it's often just a **stale UI render**, not an actual
+  backend problem — try a plain refresh (not hard-refresh) or reopening
+  the Settings → Pages tab fresh before assuming something's broken.
+  Confirmed once that "DNS check in progress" was stale display, not a
+  real hang.
+
+## Current pages on the site
+
+- `privacy.html` — privacy policy, written for Twilio A2P 10DLC compliance
+  (states mobile numbers aren't shared with third parties)
+- `terms.html` — SMS program terms and conditions
+- `sms-consent.html` — hosted public evidence of both opt-in methods
+  (verbal script + text-to-START), added for Twilio campaign review after
+  a rejection (error 30909) for lacking public proof of verbal consent
+- `sms.html` — **deleted** (July 2026); was a stale early draft with an old
+  phone number, a home address, and inconsistent frequency claims.
+  Superseded by `sms-consent.html`.
+
+## Twilio-specific gotcha worth remembering
+
+Verbal/offline opt-in isn't verifiable by a campaign reviewer just by
+visiting the site — it needs a **hosted page describing the actual consent
+script/flow** as public evidence, not just a paragraph in the
+`message_flow` field describing it abstractly. This is what
+`sms-consent.html` is for.
